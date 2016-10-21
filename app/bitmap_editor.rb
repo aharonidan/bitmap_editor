@@ -1,3 +1,4 @@
+require './app/bitmap'
 class BitmapEditor
 
   def run
