@@ -30,7 +30,7 @@ class BitmapEditor
   private
     def validate_and_run(input)
       error_message = validate(input)
-      if error_message.empty?
+      if error_message.nil?
         run_command
       else
         puts error_message
@@ -46,21 +46,19 @@ class BitmapEditor
     end
 
     def validate(input)
-      error_message = ''
-
       option, *@args = input.split
       @command = COMMANDS[option]
 
-      if command_not_found?
-        error_message = 'unrecognised command :('
+      error_message = if command_not_found?
+        'unrecognised command :('
       elsif wrong_number_arguments?
-        error_message = 'wrong number of arguments :('
+        'wrong number of arguments :('
       elsif image_is_missing?
-        error_message = 'image required for this operation :('
+        'image required for this operation :('
       elsif invalid_dimensions?
-        error_message = 'image dimensions error, dimensions must be between 1 and 250 :('
+        'image dimensions error, dimensions must be between 1 and 250 :('
       elsif invalid_colour?
-        error_message = 'colour error, please specify colour by a capital letter'
+        'colour error, please specify colour by a capital letter'
       end
 
       return error_message
