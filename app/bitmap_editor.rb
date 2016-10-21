@@ -1,4 +1,6 @@
 require './app/bitmap'
+require 'pry'
+
 class BitmapEditor
 
   attr_reader :image, :command, :args
@@ -29,12 +31,18 @@ class BitmapEditor
 
   private
     def validate_and_run(input)
+      init(input)
       error_message = validate(input)
       if error_message.nil?
         run_command
       else
         puts error_message
       end
+    end
+
+    def init(input)
+      option, *@args = input.split
+      @command = COMMANDS[option]
     end
 
     def run_command
@@ -46,9 +54,6 @@ class BitmapEditor
     end
 
     def validate(input)
-      option, *@args = input.split
-      @command = COMMANDS[option]
-
       error_message = if command_not_found?
         'unrecognised command :('
       elsif wrong_number_arguments?
@@ -66,6 +71,18 @@ class BitmapEditor
       return error_message
     end
 
+    def command_not_found?
+      command == nil
+    end
+
+    def wrong_number_arguments?
+      command[:num_of_args] != args.length
+    end
+
+    def image_is_missing?
+      image == nil && command[:image_required]
+    end
+
     def invalid_dimensions?
       command[:method] == :create_image && dimensions_out_of_range?
     end
@@ -75,27 +92,11 @@ class BitmapEditor
       columns < 1 || columns > SIZE_LIMIT || rows < 1 || rows > SIZE_LIMIT
     end
 
-    def image_is_missing?
-      image == nil && command[:image_required]
-    end
-
-    def command_not_found?
-      command == nil
-    end
-
-    def wrong_number_arguments?
-      command[:num_of_args] != args.length
-    end
-
     def invalid_colour?
       colour = args[-1]
       command[:colour] && !colour.match(/[A-Z]/)
     end
 
-    def exit_console
-      puts 'goodbye!'
-      @running = false
-    end
 
     def index_out_of_bound?
       case command[:method]
@@ -114,12 +115,13 @@ class BitmapEditor
       index.to_i < 0 || index.to_i > image.send(axis)
     end
 
-    def column_index_out_of_bound?(index)
-      index < 0 || index > image.columns
-    end
-
     def create_image(columns, rows)
       @image = Bitmap.new(columns.to_i, rows.to_i)
+    end
+
+    def exit_console
+      puts 'goodbye!'
+      @running = false
     end
 
     def show_help
