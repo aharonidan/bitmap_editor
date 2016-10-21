@@ -8,9 +8,9 @@ class BitmapEditor
       'I' => { num_of_args: 2, method: :create_image,},
       'C' => { num_of_args: 0, method: :clear_table, image_required: true  },
       'L' => { num_of_args: 3, method: :colour_pixel, image_required: true, colour: true },
-      'H' => { num_of_args: 4, method: :colour_horizontal, image_required: true, colour: true   },
-      'V' => { num_of_args: 4, method: :colour_vertical, image_required: true, colour: true   },
-      'S' => { num_of_args: 0, method: :print, image_required: true  },
+      'H' => { num_of_args: 4, method: :colour_horizontal, image_required: true, colour: true },
+      'V' => { num_of_args: 4, method: :colour_vertical, image_required: true, colour: true },
+      'S' => { num_of_args: 0, method: :print, image_required: true },
       'X' => { num_of_args: 0, method: :exit_console},
       '?' => { num_of_args: 0, method: :show_help},
     }
@@ -59,13 +59,20 @@ class BitmapEditor
         'image dimensions error, dimensions must be between 1 and 250 :('
       elsif invalid_colour?
         'colour error, please specify colour by a capital letter'
+      elsif index_out_of_bound?
+        'index out of bound error :('
       end
 
       return error_message
     end
 
     def invalid_dimensions?
-      command[:method] == :create_image && wrong_dimensions(*args)
+      command[:method] == :create_image && dimensions_out_of_range?
+    end
+
+    def dimensions_out_of_range?
+      columns, rows = args.map(&:to_i)
+      columns < 1 || columns > SIZE_LIMIT || rows < 1 || rows > SIZE_LIMIT
     end
 
     def image_is_missing?
@@ -85,21 +92,32 @@ class BitmapEditor
       command[:colour] && !colour.match(/[A-Z]/)
     end
 
-    def wrong_dimensions(rows, columns)
-      not_in_range?(rows.to_i) || not_in_range?(columns.to_i)
-    end
-
-    def not_in_range?(number)
-      number < 1 || number > SIZE_LIMIT
-    end
-
     def exit_console
       puts 'goodbye!'
       @running = false
     end
 
-    def create_image(m, n)
-      @image = Bitmap.new(m.to_i, n.to_i)
+    def index_out_of_bound?
+      case command[:method]
+      when :colour_pixel
+        invalid_index?(:columns, args[0]) || invalid_index?(:rows, args[1])
+      when :colour_vertical
+        invalid_index?(:columns, args[0]) || invalid_index?(:rows, args[1]) || invalid_index?(:rows, args[2])
+      when :colour_horizontal
+        invalid_index?(:columns, args[0]) || invalid_index?(:columns, args[1]) || invalid_index?(:rows, args[2])
+      else
+        false
+      end
+    end
+
+    def invalid_index?(axis, index)
+      index.to_i < 0 || index.to_i > image.send(axis)
+    end
+
+    def column_index_out_of_bound?(index)
+      index < 0 || index > image.columns
+    end
+
     def create_image(columns, rows)
       @image = Bitmap.new(columns.to_i, rows.to_i)
     end
