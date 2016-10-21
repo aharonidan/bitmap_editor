@@ -30,4 +30,17 @@ class Bitmap
   def colour_pixel(row, column, colour)
     table[row.to_i - 1][column.to_i - 1] = colour
   end
+
+  def colour_horizontal(row, start_column, end_column, colour)
+    (start_column..end_column).each do |column|
+      colour_pixel(row, column, colour)
+    end
+  end
+
+  def colour_vertical(start_row, end_row, column, colour)
+    (start_row..end_row).each do |row|
+      colour_pixel(row, column, colour)
+    end
+  end
+
 end
