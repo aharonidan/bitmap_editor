@@ -5,7 +5,7 @@ class BitmapEditor
 
   COMMANDS =
     {
-      'I' => { number_of_args: 2, method: :create_table, image_required: false },
+      'I' => { number_of_args: 2, method: :create_image, image_required: false },
       'C' => { number_of_args: 0, method: :clear_table, image_required: true  },
       'L' => { number_of_args: 3, method: :colour_pixel, image_required: true  },
       'H' => { number_of_args: 3, method: :colour_row, image_required: true  },
@@ -63,7 +63,7 @@ class BitmapEditor
       @running = false
     end
 
-    def create_table(m, n)
+    def create_image(m, n)
       @image = Bitmap.new(m.to_i, n.to_i)
     end
 
