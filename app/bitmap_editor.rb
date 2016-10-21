@@ -1,6 +1,7 @@
 require './app/bitmap'
 class BitmapEditor
 
+  attr_reader :image
 
   COMMANDS =
     {
@@ -19,25 +20,54 @@ class BitmapEditor
     puts 'type ? for help'
     while @running
       print '> '
-      input = gets.chomp
-      case input
-        when '?'
-          show_help
-        when 'X'
-          exit_console
-        else
-          puts 'unrecognised command :('
-      end
+      run_command(gets.chomp)
     end
   end
 
   private
-    def exit_console
+    def run_command(input)
+      if command = validate_input(input)
+        _, *args = input.split
+        method = command[:method]
+
+        if command[:image_required]
+          image.send(method, *args)
+        else
+          send(method, *args)
+        end
+
+      end
+    end
+
+
+    def validate_input(input)
+      result = nil
+      option, *args = input.split
+      command = COMMANDS[option]
+
+      if command == nil
+        puts 'unrecognised command :('
+      elsif command[:number_of_args] != args.length
+        puts 'wrong number of arguments :('
+      elsif command[:image_required] && image == nil
+        puts 'image required for this operation :('
+      else
+        result = command
+      end
+
+      return result
+    end
+
+    def exit_console(*args)
       puts 'goodbye!'
       @running = false
     end
 
-    def show_help
+    def create_table(m, n)
+      @image = Bitmap.new(m.to_i, n.to_i)
+    end
+
+    def show_help(*args)
       puts "? - Help
 I M N - Create a new M x N image with all pixels coloured white (O).
 C - Clears the table, setting all pixels to white (O).
