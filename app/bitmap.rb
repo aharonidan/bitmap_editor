@@ -2,6 +2,8 @@ class Bitmap
 
   attr_reader :rows, :columns, :table
 
+  DEFAULT_COLOUR = 'O'
+
   def initialize(rows, columns)
     @rows = rows
     @columns = columns
@@ -9,7 +11,7 @@ class Bitmap
   end
 
   def create_table
-    Array.new(rows) { Array.new(columns, 'O') }
+    Array.new(rows) { Array.new(columns, DEFAULT_COLOUR) }
   end
 
   def clear_table
