@@ -100,6 +100,8 @@ class BitmapEditor
 
     def create_image(m, n)
       @image = Bitmap.new(m.to_i, n.to_i)
+    def create_image(columns, rows)
+      @image = Bitmap.new(columns.to_i, rows.to_i)
     end
 
     def show_help

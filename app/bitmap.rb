@@ -4,9 +4,9 @@ class Bitmap
 
   DEFAULT_COLOUR = 'O'
 
-  def initialize(rows, columns)
-    @rows = rows
+  def initialize(columns, rows)
     @columns = columns
+    @rows = rows
     @table = create_table
   end
 
@@ -29,20 +29,19 @@ class Bitmap
     puts result
   end
 
-  def colour_pixel(row, column, colour)
+  def colour_pixel(column, row, colour)
     table[row.to_i - 1][column.to_i - 1] = colour
-  end
-
-  def colour_horizontal(start_column, end_column, row, colour)
-    (start_column..end_column).each do |column|
-      colour_pixel(row, column, colour)
-    end
   end
 
   def colour_vertical(column, start_row, end_row, colour)
     (start_row..end_row).each do |row|
-      colour_pixel(row, column, colour)
+      colour_pixel(column, row, colour)
     end
   end
 
+  def colour_horizontal(start_column, end_column, row, colour)
+    (start_column..end_column).each do |column|
+      colour_pixel(column, row, colour)
+    end
+  end
 end
