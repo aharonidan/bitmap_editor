@@ -15,6 +15,8 @@ class BitmapEditor
       '?' => { number_of_args: 0, method: :show_help, image_required: false  },
     }
 
+  SIZE_LIMIT = 250
+
   def run
     @running = true
     puts 'type ? for help'
@@ -51,6 +53,7 @@ class BitmapEditor
         puts 'wrong number of arguments :('
       elsif command[:image_required] && image == nil
         puts 'image required for this operation :('
+      elsif command[:method] == :create_image && wrong_dimensions(*args)
       else
         result = command
       end
@@ -58,7 +61,15 @@ class BitmapEditor
       return result
     end
 
-    def exit_console(*args)
+    def wrong_dimensions(rows, columns)
+      not_in_range?(rows.to_i) || not_in_range?(columns.to_i)
+    end
+
+    def not_in_range?(number)
+      number < 1 || number > SIZE_LIMIT
+    end
+
+    def exit_console
       puts 'goodbye!'
       @running = false
     end
