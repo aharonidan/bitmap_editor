@@ -1,6 +1,19 @@
 require './app/bitmap'
 class BitmapEditor
 
+
+  COMMANDS =
+    {
+      'I' => { number_of_args: 2, method: :create_table, image_required: false },
+      'C' => { number_of_args: 0, method: :clear_table, image_required: true  },
+      'L' => { number_of_args: 3, method: :colour_pixel, image_required: true  },
+      'H' => { number_of_args: 3, method: :colour_row, image_required: true  },
+      'V' => { number_of_args: 3, method: :colour_column, image_required: true  },
+      'S' => { number_of_args: 0, method: :print, image_required: true  },
+      'X' => { number_of_args: 0, method: :exit_console, image_required: false  },
+      '?' => { number_of_args: 0, method: :show_help, image_required: false  },
+    }
+
   def run
     @running = true
     puts 'type ? for help'
