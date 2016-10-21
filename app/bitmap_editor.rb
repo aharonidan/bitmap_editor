@@ -1,7 +1,7 @@
 require './app/bitmap'
 class BitmapEditor
 
-  attr_reader :image
+  attr_reader :image, :command, :args
 
   COMMANDS =
     {
@@ -22,64 +22,67 @@ class BitmapEditor
     puts 'type ? for help'
     while @running
       print '> '
-      run_command(gets.chomp)
+      input = gets.chomp
+      validate_and_run(input)
     end
   end
 
   private
-    def run_command(input)
-      if command = validate_input(input)
-        _, *args = input.split
-        method = command[:method]
-
-        if command[:image_required]
-          image.send(method, *args)
-        else
-          send(method, *args)
-        end
-
-      end
-    end
-
-    def validate_input(input)
-      result = nil
-      option, *args = input.split
-      command = COMMANDS[option]
-
-      if command_not_found?(command)
-        puts 'unrecognised command :('
-      elsif wrong_number_arguments?(command, args)
-        puts 'wrong number of arguments :('
-      elsif image_is_missing?(command)
-        puts 'image required for this operation :('
-      elsif invalid_dimensions?(command, args)
-        puts 'image dimensions error, dimensions must be between 1 and 250 :('
-      elsif invalid_colour?(command, args)
-        puts 'colour error, please specify colour by a capital letter'
+    def validate_and_run(input)
+      error_message = validate(input)
+      if error_message.empty?
+        run_command
       else
-        result = command
+        puts error_message
       end
-
-      return result
     end
 
-    def invalid_dimensions?(command, args)
+    def run_command
+      if command[:image_required]
+        image.send(command[:method], *args)
+      else
+        send(command[:method], *args)
+      end
+    end
+
+    def validate(input)
+      error_message = ''
+
+      option, *@args = input.split
+      @command = COMMANDS[option]
+
+      if command_not_found?
+        error_message = 'unrecognised command :('
+      elsif wrong_number_arguments?
+        error_message = 'wrong number of arguments :('
+      elsif image_is_missing?
+        error_message = 'image required for this operation :('
+      elsif invalid_dimensions?
+        error_message = 'image dimensions error, dimensions must be between 1 and 250 :('
+      elsif invalid_colour?
+        error_message = 'colour error, please specify colour by a capital letter'
+      end
+
+      return error_message
+    end
+
+    def invalid_dimensions?
       command[:method] == :create_image && wrong_dimensions(*args)
     end
 
-    def image_is_missing?(command)
+    def image_is_missing?
       image == nil && command[:image_required]
     end
 
-    def command_not_found?(command)
+    def command_not_found?
       command == nil
     end
 
-    def wrong_number_arguments?(command, args)
+    def wrong_number_arguments?
       command[:num_of_args] != args.length
     end
 
-    def invalid_colour?(command, args)
+    def invalid_colour?
       colour = args[-1]
       command[:colour] && !colour.match(/[A-Z]/)
     end
