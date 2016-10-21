@@ -26,4 +26,8 @@ class Bitmap
     end
     puts result
   end
+
+  def colour_pixel(row, column, colour)
+    table[row.to_i - 1][column.to_i - 1] = colour
+  end
 end
