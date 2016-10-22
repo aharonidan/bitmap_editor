@@ -1,5 +1,4 @@
 require './app/bitmap'
-require 'pry'
 
 class BitmapEditor
 

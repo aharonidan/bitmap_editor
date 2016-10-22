@@ -26,15 +26,19 @@ class Bitmap
     @table = create_table
   end
 
-  def print
+  def to_s
     result = ''
     table.each do |row|
       row.each do |cell|
-        result << cell + ' '
+        result << cell
       end
       result << "\n"
     end
-    puts result
+    result
+  end
+
+  def print
+    puts self
   end
 
   def colour_pixel(column, row, colour)
