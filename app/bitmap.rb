@@ -14,7 +14,7 @@ class Bitmap
 
   def validate_dimensions(columns, rows)
     if !columns.between?(1, SIZE_LIMIT) || !rows.between?(1, SIZE_LIMIT)
-      raise ArgumentError, 'dimensions must be between 1 and 250 :('
+      raise ArgumentError, "dimensions must be between 1 and #{SIZE_LIMIT} :("
     end
   end
 
@@ -44,7 +44,7 @@ class Bitmap
   def colour_pixel(column, row, colour)
     column, row = [column.to_i, row.to_i]
     if column > self.columns || row > self.rows
-      raise ArgumentError, 'index out bound :('
+      raise ArgumentError, 'index out of bounds :('
     else
       table[row - 1][column - 1] = colour
     end
