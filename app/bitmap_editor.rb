@@ -12,9 +12,9 @@ class BitmapEditor
       'L' => { format: /^L \d+ \d+ [A-Z]$/, method: :colour_pixel, image_required: true },
       'V' => { format: /^V \d+ \d+ \d+ [A-Z]$/, method: :colour_vertical, image_required: true },
       'H' => { format: /^H \d+ \d+ \d+ [A-Z]$/, method: :colour_horizontal, image_required: true },
-      'S' => { format: /^S$/, method: :print, image_required: true },
-      'X' => { format: /^X$/, method: :exit_console },
-      '?' => { format: /^?$/, method: :show_help },
+      'S' => { format: 'S', method: :print, image_required: true },
+      'X' => { format: 'X', method: :exit_console },
+      '?' => { format: /^\?$/, method: :show_help },
     }
 
   def run
@@ -22,8 +22,7 @@ class BitmapEditor
     puts 'type ? for help'
     while @running
       print '> '
-      input = gets.chomp
-      validate_and_run(input)
+      validate_and_run(gets.chomp)
     end
   end
 
@@ -41,7 +40,7 @@ class BitmapEditor
       option, *@args = input.split
       current_command = COMMANDS[option]
 
-      if current_command && input.match(current_command[:format])
+      if format_is_matching?(input, current_command)
         @command = current_command
       end
 
@@ -50,15 +49,15 @@ class BitmapEditor
       elsif image_is_missing?
         raise ArgumentError, 'image required for this operation :('
       end
-
     end
 
     def run_command
-      if command[:image_required]
-        image.send(command[:method], *args)
-      else
-        send(command[:method], *args)
-      end
+      run_on = command[:image_required] ? image : self
+      run_on.send(command[:method], *args)
+    end
+
+    def format_is_matching?(input, current_command)
+      current_command && input.match(current_command[:format])
     end
 
     def reset_command
