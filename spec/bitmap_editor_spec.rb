@@ -61,7 +61,7 @@ describe BitmapEditor do
       expect { editor.send(:validate_and_run, 'L 3 3 A') }.to output(/index out of bounds/).to_stdout
     end
 
-    it 'should do multiple operations' do
+    it 'should perform multiple operations' do
       editor.send(:validate_and_run, 'I 5 6')
       editor.send(:validate_and_run, 'L 2 3 A')
       expect { editor.send(:validate_and_run, 'S') }.to output("OOOOO\nOOOOO\nOAOOO\nOOOOO\nOOOOO\nOOOOO\n").to_stdout

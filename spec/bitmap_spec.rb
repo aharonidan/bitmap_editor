@@ -11,7 +11,7 @@ describe Bitmap do
            expect(image.to_s).to eq "OOO\nOOO\nOOO\nOOO\n"
         end
 
-        it "should raise exception if dimensions are out of range" do
+        it "should raise error if dimensions are out of range" do
             expect { Bitmap.new(-1, 1) }.to raise_error(ArgumentError)
             expect { Bitmap.new(1, -1) }.to raise_error(ArgumentError)
             expect { Bitmap.new(Bitmap::SIZE_LIMIT + 1, 1) }.to raise_error(ArgumentError)
@@ -26,14 +26,14 @@ describe Bitmap do
             expect(image.to_s).to eq "OOO\nOOO\nOOX\nOOO\n"
         end
 
-        it "should raise exception if index out of bound" do
+        it "should raise error if index is out of bounds" do
             image = Bitmap.new(3,4)
             expect { image.colour_pixel(4 ,1 ,'X') }.to raise_error(ArgumentError)
         end
     end
 
     describe '#colour_vertical' do
-        it "colour vertical line" do
+        it "should colour vertical line" do
             image = Bitmap.new(3,4)
             image.colour_vertical(2, 2, 4, 'X')
             expect(image.to_s).to eq "OOO\nOXO\nOXO\nOXO\n"
@@ -41,7 +41,7 @@ describe Bitmap do
     end
 
     describe '#colour_horizontal' do
-        it "colour vertical line" do
+        it "should colour vertical line" do
             image = Bitmap.new(3,4)
             image.colour_horizontal(2, 3, 2, 'X')
             expect(image.to_s).to eq "OOO\nOXX\nOOO\nOOO\n"

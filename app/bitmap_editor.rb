@@ -39,7 +39,7 @@ class BitmapEditor
       option, *@args = input.split
       current_command = COMMANDS[option]
 
-      if format_is_matching?(input, current_command)
+      if command_format_matches?(input, current_command)
         @command = current_command
       end
 
@@ -55,7 +55,7 @@ class BitmapEditor
       run_on.send(command[:method], *args)
     end
 
-    def format_is_matching?(input, current_command)
+    def command_format_matches?(input, current_command)
       current_command && input.match(current_command[:format])
     end
 
