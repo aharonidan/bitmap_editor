@@ -7,17 +7,15 @@ class BitmapEditor
 
   COMMANDS =
     {
-      'I' => { num_of_args: 2, method: :create_image,},
-      'C' => { num_of_args: 0, method: :clear_table, image_required: true  },
-      'L' => { num_of_args: 3, method: :colour_pixel, image_required: true, colour: true },
-      'H' => { num_of_args: 4, method: :colour_horizontal, image_required: true, colour: true },
-      'V' => { num_of_args: 4, method: :colour_vertical, image_required: true, colour: true },
-      'S' => { num_of_args: 0, method: :print, image_required: true },
-      'X' => { num_of_args: 0, method: :exit_console},
-      '?' => { num_of_args: 0, method: :show_help},
+      'I' => { format: /^I \d+ \d+$/, method: :create_image },
+      'C' => { format: 'C', method: :clear_table, image_required: true },
+      'L' => { format: /^L \d+ \d+ [A-Z]$/, method: :colour_pixel, image_required: true },
+      'V' => { format: /^V \d+ \d+ \d+ [A-Z]$/, method: :colour_vertical, image_required: true },
+      'H' => { format: /^H \d+ \d+ \d+ [A-Z]$/, method: :colour_horizontal, image_required: true },
+      'S' => { format: /^S$/, method: :print, image_required: true },
+      'X' => { format: /^X$/, method: :exit_console },
+      '?' => { format: /^?$/, method: :show_help },
     }
-
-  SIZE_LIMIT = 250
 
   def run
     @running = true
@@ -31,18 +29,28 @@ class BitmapEditor
 
   private
     def validate_and_run(input)
-      init(input)
-      error_message = validate(input)
-      if error_message.nil?
-        run_command
-      else
-        puts error_message
-      end
+      validate(input)
+      run_command
+    rescue ArgumentError => error
+      puts error.message
+    ensure
+      reset_command
     end
 
-    def init(input)
+    def validate(input)
       option, *@args = input.split
-      @command = COMMANDS[option]
+      current_command = COMMANDS[option]
+
+      if current_command && input.match(current_command[:format])
+        @command = current_command
+      end
+
+      if unrecognised_command?
+        raise ArgumentError, 'unrecognised command :('
+      elsif image_is_missing?
+        raise ArgumentError, 'image required for this operation :('
+      end
+
     end
 
     def run_command
@@ -53,66 +61,16 @@ class BitmapEditor
       end
     end
 
-    def validate(input)
-      error_message = if command_not_found?
-        'unrecognised command :('
-      elsif wrong_number_arguments?
-        'wrong number of arguments :('
-      elsif image_is_missing?
-        'image required for this operation :('
-      elsif invalid_dimensions?
-        'image dimensions error, dimensions must be between 1 and 250 :('
-      elsif invalid_colour?
-        'colour error, please specify colour by a capital letter'
-      elsif index_out_of_bound?
-        'index out of bound error :('
-      end
-
-      return error_message
+    def reset_command
+      @command = nil
     end
 
-    def command_not_found?
+    def unrecognised_command?
       command == nil
-    end
-
-    def wrong_number_arguments?
-      command[:num_of_args] != args.length
     end
 
     def image_is_missing?
       image == nil && command[:image_required]
-    end
-
-    def invalid_dimensions?
-      command[:method] == :create_image && dimensions_out_of_range?
-    end
-
-    def dimensions_out_of_range?
-      columns, rows = args.map(&:to_i)
-      columns < 1 || columns > SIZE_LIMIT || rows < 1 || rows > SIZE_LIMIT
-    end
-
-    def invalid_colour?
-      colour = args[-1]
-      command[:colour] && !colour.match(/[A-Z]/)
-    end
-
-
-    def index_out_of_bound?
-      case command[:method]
-      when :colour_pixel
-        invalid_index?(:columns, args[0]) || invalid_index?(:rows, args[1])
-      when :colour_vertical
-        invalid_index?(:columns, args[0]) || invalid_index?(:rows, args[1]) || invalid_index?(:rows, args[2])
-      when :colour_horizontal
-        invalid_index?(:columns, args[0]) || invalid_index?(:columns, args[1]) || invalid_index?(:rows, args[2])
-      else
-        false
-      end
-    end
-
-    def invalid_index?(axis, index)
-      index.to_i < 0 || index.to_i > image.send(axis)
     end
 
     def create_image(columns, rows)
